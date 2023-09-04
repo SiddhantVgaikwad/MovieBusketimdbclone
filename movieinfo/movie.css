@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Nabla&display=swap');
+  
+body {
+    background-color: #484f45;
+    color: white;
+  }
+ 
+  /* NAVBAR */
+  #nav{
+    font-family: "Nabla";
+    height:125px;
+    background-color: black;
+    border:groove 15px #ff9d00;
+    margin: 0px 10px ;
+    border-radius: 0px 0px 20px 20px;
+  }
+
+  #nav-text{
+    text-align: center;
+    margin: 20px;
+    font-weight:bolder;
+    font-size: 2.5pc;
+  }
+
+  #title{
+   font-weight: bolder;
+   color: #ff9100;
+   text-decoration: underline rgb(121, 119, 119);
+   text-transform: uppercase;
+  }
+
+  #year{
+    margin-right: 20px;
+    font-size: 20px;
+    font-family:sans-serif;
+    
+  }
+
+  #runtime{
+    font-size: 20px;
+    font-family:sans-serif;
+  }
+
+  .rate{
+    position: center;
+    
+  }
+
+  h4{
+    height:30px;
+    color: rgb(255, 230, 0);
+  }
+
+  #rating{
+    color: rgb(255, 217, 35);
+    margin-left:5px;
+
+  }
+
+
+
+  .fa-star {
+    font-size:25px;
+    color: rgb(255, 217, 35);
+  }
+  
+
+
+
+
+
+  
+  /* Movie card*/
+ 
+  
+  .movie-detail{
+    color: rgb(255, 182, 47);
+
+  }
+ 
+
+  #poster{
+    margin-top: 20px;
+    box-shadow:  0px 0px 25px 1px rgb(255, 255, 255);
+    border: groove 5px;
+    border-image: linear-gradient(blue,rgb(255, 166, 0), rgb(0, 0, 0))1;
+  }
+
+  .col{
+    margin:20px 80px 0px 40px ;
+    border: groove 6px rgb(175, 175, 222);
+    background-color: rgb(35, 44, 49);
+    border-color: azure;
+
+    
+
+    
+  }
+
+  .card-title{
+    text-decoration: underline;
+    font-weight: bolder;
+    font-size:25px;
+    
+  }
+
+  .info-type{
+    
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  }
+  
+  
+  
+  
+  /* Responsiveness */
+  @media screen and (max-width: 767px) {
+    #poster {
+      margin-top: 1rem;
+      border-radius: 5px !important;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    #title {
+      font-size: x-large;
+    }
+  
+    h6 {
+      font-size: medium;
+    }
+  
+    h5 {
+      font-size: medium;
+    }
+  
+    #poster {
+      margin-top: 0px;
+      width: 100%;
+    }
+  }
