@@ -1,228 +1,194 @@
-"use strict";
-const key= "97c7be30";
-(function () {
-  const searchKeyword = document.getElementById("search");
-  const suggestionsContainer = document.getElementById("card-container");
-  const favMoviesContainer = document.getElementById("fav-movies-container");
-  const emptyText = document.getElementById("empty-search-text");
-  const showFavourites = document.getElementById("favorites-section");
-  const emptyFavText = document.getElementById("empty-fav-text");
+const API_KEY = "97c7be30";
+const BASE_URL = "https://www.omdbapi.com/";
 
-  addToFavDOM();
-  showEmptyText();
-  let suggestionList = [];
-  let favMovieArray = [];
+const movieSearchBox = document.getElementById('movieName');
+const searchList = document.getElementById('search-list');
+const resultGrid = document.getElementById('result-grid');
+const resultContainer = document.getElementById('result-container');
 
-  searchKeyword.addEventListener("keydown", (event) => {
-    if (event.key == "Enter") {
-      event.preventDefault();
+// Debounce function to limit API calls
+function debounce(func, delay) {
+  let timeoutId;
+  return function() {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(context, args), delay);
+  };
+}
+
+// Load movies from API with error handling
+async function loadMovies(searchTerm) {
+  try {
+    const URL = `${BASE_URL}?s=${encodeURIComponent(searchTerm)}&page=1&apikey=${API_KEY}`;
+    const response = await fetch(URL);
+    
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
     }
-  });
-
-  function showEmptyText() {
-    if (favMoviesContainer.innerHTML == "") {
-      emptyFavText.style.display = "block";
+    
+    const data = await response.json();
+    
+    if (data.Response === "True") {
+      displayMovieList(data.Search);
     } else {
-      emptyFavText.style.display = "none";
+      searchList.innerHTML = `<div class="no-results">No results found for "${searchTerm}"</div>`;
+      searchList.classList.add('active');
     }
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    searchList.innerHTML = `<div class="error-message">Failed to load results. Please try again later.</div>`;
+    searchList.classList.add('active');
   }
+}
 
-  // Event listner on search
-  searchKeyword.addEventListener("keyup", function () {
-    let search = searchKeyword.value;
-    if (search === "") {
-      emptyText.style.display = "block";
-      suggestionsContainer.innerHTML = "";
-      // clears the previous movies from array
-      suggestionList = [];
-    } else {
-      emptyText.style.display = "none";
-      (async () => {
-        let data = await fetchMovies(search);
-        addToSuggestionContainerDOM(data);
-      })();
+// Debounced version of findMovies
+const debouncedFindMovies = debounce(findMovies, 300);
 
-      suggestionsContainer.style.display = "grid";
-    }
-  });
-
-  const key= "97c7be30";
-  // Fetches data from api and calls function to add it in
-  async function fetchMovies(search) {
-    const url = `https://www.omdbapi.com/?t=${search}&apikey=97c7be30`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      return data;
-    } catch (err) {
-      console.log(err);
-    }
+function findMovies() {
+  let searchTerm = movieSearchBox.value.trim();
+  if (searchTerm.length > 2) {
+    searchList.classList.add('active');
+    loadMovies(searchTerm);
+  } else {
+    searchList.classList.remove('active');
+    resultContainer.style.display = 'none';
   }
+}
 
-  // Shows in suggestion container DOM
-  function addToSuggestionContainerDOM(data) {
-    document.getElementById("empty-fav-text").style.display = "none";
-    let isPresent = false;
-
-    // to check if the movie is already present in the suggestionList array
-    suggestionList.forEach((movie) => {
-      if (movie.Title == data.Title) {
-        isPresent = true;
-      }
-    });
-
-    if (!isPresent && data.Title != undefined) {
-      if (data.Poster == "N/A") {
-        data.Poster = "./images/not-found.png";
-      }
-      suggestionList.push(data);
-      const movieCard = document.createElement("div");
-      movieCard.setAttribute("class", "text-decoration");
-
-      movieCard.innerHTML = `
-        <div class="card my-2" data-id = " ${data.Title} ">
-        <a href="movieinfo/movie.html" >
-          <img
-            src="${data.Poster} "
-            class="card-img-top"
-            alt="..."
-            data-id = "${data.Title} "
-          />
-          <div class="card-body text-start">
-            <h5 class="card-title" >
-              <a href="movieinfo/movie.html" data-id = "${data.Title} "> ${data.Title}  </a>
-            </h5>
-
-            <p class="card-text">
-              <i class="fa-solid fa-star">
-                <span id="rating">&nbsp;${data.imdbRating}</span>
-              </i>
-
-              <button class="fav-btn" >
-                <i class="fa-solid fa-heart-circle-plus add-fav" data-id="${data.Title}"></i>
-              </button>
-            </p>
-          </div>
-        </a>
+// Display movie list in search results
+function displayMovieList(movies) {
+  searchList.innerHTML = "";
+  
+  // Limit to 8 results for better UX
+  const displayedMovies = movies.slice(0, 8);
+  
+  displayedMovies.forEach(movie => {
+    const movieListItem = document.createElement('div');
+    movieListItem.dataset.id = movie.imdbID;
+    movieListItem.classList.add('search-list-item');
+    
+    const moviePoster = movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/50x75?text=No+Poster";
+    
+    movieListItem.innerHTML = `
+      <div class="search-item-thumbnail">
+        <img src="${moviePoster}" alt="${movie.Title}">
+      </div>
+      <div class="search-item-info">
+        <h3>${movie.Title}</h3>
+        <p>${movie.Year} • ${movie.Type}</p>
       </div>
     `;
-      suggestionsContainer.prepend(movieCard);
-    }
+    
+    searchList.appendChild(movieListItem);
+  });
+  
+  loadMovieDetails();
+}
+
+// Load movie details when a search result is clicked
+function loadMovieDetails() {
+  const searchListMovies = searchList.querySelectorAll('.search-list-item');
+  
+  searchListMovies.forEach(movie => {
+    movie.addEventListener('click', async () => {
+      searchList.classList.remove('active');
+      movieSearchBox.value = "";
+      
+      try {
+        const response = await fetch(`${BASE_URL}?i=${movie.dataset.id}&apikey=${API_KEY}`);
+        
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const movieDetails = await response.json();
+        displayMovieDetails(movieDetails);
+      } catch (error) {
+        console.error("Error fetching movie details:", error);
+        resultGrid.innerHTML = `
+          <div class="error-message">
+            Failed to load movie details. Please try again later.
+          </div>
+        `;
+      }
+    });
+  });
+}
+
+// Display movie details
+function displayMovieDetails(details) {
+  resultContainer.style.display = 'block';
+  
+  resultGrid.innerHTML = `
+    <div class="movie-details">
+      <div class="movie-poster-large">
+        <img src="${details.Poster !== "N/A" ? details.Poster : 'https://via.placeholder.com/300x450?text=No+Poster'}" alt="${details.Title}">
+      </div>
+      <div class="movie-info-detailed">
+        <h2>${details.Title} <span class="movie-rating">${details.imdbRating}/10</span></h2>
+        
+        <ul class="movie-misc-info">
+          <li>${details.Year}</li>
+          <li>${details.Rated}</li>
+          <li>${details.Runtime}</li>
+          <li>${details.Genre.split(',').slice(0, 2).join(', ')}</li>
+        </ul>
+        
+        <div class="movie-plot">
+          <h3>Plot</h3>
+          <p>${details.Plot}</p>
+        </div>
+        
+        <div class="movie-credits">
+          <p><strong>Director:</strong> ${details.Director}</p>
+          <p><strong>Writers:</strong> ${details.Writer}</p>
+          <p><strong>Stars:</strong> ${details.Actors}</p>
+        </div>
+        
+        <div class="movie-awards">
+          <p><strong>Awards:</strong> ${details.Awards}</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Scroll to results for better UX
+  resultContainer.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Close search list when clicking outside
+window.addEventListener('click', (event) => {
+  if (!event.target.closest('.search-element')) {
+    searchList.classList.remove('active');
   }
+});
 
-  // Add to favourite of localStorage
-  async function handleFavBtn(e) {
-    const target = e.target;
-
-    let data = await fetchMovies(target.dataset.id);
-
-    let favMoviesLocal = localStorage.getItem("favMoviesList");
-
-    if (favMoviesLocal) {
-      favMovieArray = Array.from(JSON.parse(favMoviesLocal));
+// Keyboard navigation for accessibility
+movieSearchBox.addEventListener('keydown', (e) => {
+  const items = searchList.querySelectorAll('.search-list-item');
+  let currentItem = document.querySelector('.search-list-item.highlighted');
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!currentItem) {
+      items[0]?.classList.add('highlighted');
     } else {
-      localStorage.setItem("favMoviesList", JSON.stringify(data));
+      currentItem.classList.remove('highlighted');
+      const nextItem = currentItem.nextElementSibling || items[0];
+      nextItem.classList.add('highlighted');
+      nextItem.scrollIntoView({ block: 'nearest' });
     }
-
-    // to check if movie is already present in the fav list
-    let isPresent = false;
-    favMovieArray.forEach((movie) => {
-      if (data.Title == movie.Title) {
-        notify("already added to fav list");
-        isPresent = true;
-      }
-    });
-
-    if (!isPresent) {
-      favMovieArray.push(data);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (currentItem) {
+      currentItem.classList.remove('highlighted');
+      const prevItem = currentItem.previousElementSibling || items[items.length - 1];
+      prevItem.classList.add('highlighted');
+      prevItem.scrollIntoView({ block: 'nearest' });
     }
-
-    localStorage.setItem("favMoviesList", JSON.stringify(favMovieArray));
-    isPresent = !isPresent;
-    addToFavDOM();
+  } else if (e.key === 'Enter' && currentItem) {
+    e.preventDefault();
+    currentItem.click();
   }
-
-  // Add to favourite list DOM
-  function addToFavDOM() {
-    favMoviesContainer.innerHTML = "";
-
-    let favList = JSON.parse(localStorage.getItem("favMoviesList"));
-    if (favList) {
-      favList.forEach((movie) => {
-        const div = document.createElement("div");
-        div.classList.add(
-          "fav-movie-card",
-          "d-flex",
-          "justify-content-between",
-          "align-content-center",
-          "my-2"
-        );
-        div.innerHTML = `
-   
-    <img
-      src="${movie.Poster}"
-      alt=""
-      class="fav-movie-poster"
-    />
-    <div class="movie-card-details">
-      <p class="movie-name mt-3 mb-0">
-       <a href = "movieinfo/movie.html" class="fav-movie-name" data-id="${movie.Title}">${movie.Title}<a> 
-      </p>
-      <small class="text-muted">${movie.Year}</small>
-    </div>
-
-    <div class="delete-btn my-4">
-        <i class="fa-solid fa-trash-can" data-id="${movie.Title}"></i>
-    </div>
-    `;
-
-        favMoviesContainer.prepend(div);
-      });
-    }
-  }
-
-  // To notify
-  function notify(text) {
-    window.alert(text);
-  }
-
-  // Delete from favourite list
-  function deleteMovie(name) {
-    let favList = JSON.parse(localStorage.getItem("favMoviesList"));
-    let updatedList = Array.from(favList).filter((movie) => {
-      return movie.Title != name;
-    });
-
-    localStorage.setItem("favMoviesList", JSON.stringify(updatedList));
-
-    addToFavDOM();
-    showEmptyText();
-  }
-
-  // Handles click events
-  async function handleClickListner(e) {
-    const target = e.target;
-
-    if (target.classList.contains("add-fav")) {
-      e.preventDefault();
-      handleFavBtn(e);
-    } else if (target.classList.contains("fa-trash-can")) {
-      deleteMovie(target.dataset.id);
-    } else if (target.classList.contains("fa-bars")) {
-      if (showFavourites.style.display == "flex") {
-        document.getElementById("show-favourites").style.color = "#8b9595";
-        showFavourites.style.display = "none";
-      } else {
-        showFavourites.classList.add("animate__backInRight");
-        document.getElementById("show-favourites").style.color =
-          "white";
-        showFavourites.style.display = "flex";
-      }
-    }
-
-    localStorage.setItem("movieName", target.dataset.id);
-  }
-
-  // Event listner on whole document
-  document.addEventListener("click", handleClickListner);
-})();
+});
