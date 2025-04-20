@@ -1,92 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Moviebusket</title>
-    <link rel="icon" type="image/x-icon" href="img/download.jpg"/>
-
-    <!-- Bootstrap  -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous"/>
-
-    <!-- FontAwesome -->
-    <script src="https://kit.fontawesome.com/a8162db7fd.js" crossorigin="anonymous"></script>
-
-    <!-- Animate -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div id="Movietitle">Moviebusket</div>
-    <!-- NAVBAR -->
-    <nav id="navbar" class="navbar sticky-top" style="background-color:rgb(255, 140, 0);">
-      <div class="container-fluid justify-content-start">
-        <a class="navbar-brand" href="#"></a>
-
-        <!-- Search Bar-->
-        <div id="search-bar" class="mx-auto">
-          <form action="" autocomplete="off">
-            <input type="search" placeholder="search your movie here..... " id="search" autocomplete="off"/>
-           <!-- <button id="search-btn">
-              <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            </button>
-          -->
-          </form>
-        </div>
-
-        <div id="show-favourites"><i class="fa-solid fa-bars"></i></div>
-      </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMDb Clone - Movie Search</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="img/IMDb_icon.svg">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">IMDb</span>
+    </div>
+    <nav class="nav">
+      <ul>
+        <li><a href="movie.html">Home</a></li>
+        <li><a href="#">Movies</a></li>
+        <li><a href="#">TV Shows</a></li>
+        <li><a href="#">Celebrities</a></li>
+      </ul>
     </nav>
+  </header>
 
-    <div id="container" class="d-flex justify-content-between">
-      <!-- MAIN  SECTION-->
-      <main id="main-section">
-        <!-- Suggestions container-->
-        <div id="Suggestions-container" class="d-flex">
-          <p id="empty-search-text" class="fs-1 pt-5 ms-4">
-            search your movie 
-          </p>
-
-          <div id="card-container">
-          </div>
+  <main class="main-content">
+    <div class="search-container">
+      <h1 class="search-title">Find Movies, TV Shows, and More</h1>
+      <div class="search-element">
+        <div class="search-input-container">
+          <input type="text" id="movieName" placeholder="Search for movies, TV shows..." class="form-control" 
+                 onkeyup="findMovies()" onclick="findMovies()">
+          <button class="search-button"><i class="fas fa-search"></i></button>
         </div>
-      </main>
-
-      <!-- FAVORITES SECTION -->
-      <section id="favorites-section" class="animate__animated">
-        <h2>Favorites</h2>
-
-        <div id="empty-fav-text">
-          <p class="fs-5 mx-3 text-muted" id="fav-text-emp">
-            add your favorites movies.
-          </p>
-        </div>
-
-        <div id="fav-movies-container" class="mx-auto">
-          <!-- <div
-            class="fav-movie-card d-flex justify-content-between align-content-center my-2"
-          >
-            
-            <div class="movie-card-details">
-              <p class="movie-name mt-3 mb-0">
-                iron man
-              </p>
-              <small class="text-muted">2007</small>
-            </div>
-
-            
-
-            <div class="delete-btn">
-              <i class="fa-solid fa-trash-can" data-id="iron-man"></i>
-            </div>
-
-          </div> -->
-        </div>
-      </section>
+        <div class="search-list" id="search-list"></div>
+      </div>
     </div>
 
-    <script src="script.js"></script>
-  </body>
+    <div class="result" id="result-container">
+      <div class="result-grid" id="result-grid"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo">IMDb</div>
+      <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Press</a>
+        <a href="#">Jobs</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+    </div>
+    <div class="copyright">© 2023 IMDb Clone. All rights reserved.</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
 </html>
